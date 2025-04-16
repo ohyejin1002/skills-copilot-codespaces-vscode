@@ -1,12 +1,5 @@
 import json
 
-with open("aircraft_data.json", "r", encoding="utf-8") as file:
-    aircraft_list = json.load(file)
-
-for data in aircraft_list:
-    aircraft = Aircraft(data)
-    aircraft.status_report()
-
 class Aircraft:
     def __init__(self, data):
         self.model = data["model"]
@@ -44,9 +37,19 @@ class Aircraft:
         return self.cg_limit_range[0] <= cg <= self.cg_limit_range[1]
 
     def status_report(self):
-        print(f"\n 모델: {self.model} | 목적지: {self.destination}")
+        print(f"\n모델: {self.model} | 목적지: {self.destination}")
         print(f" 총 중량: {self.total_weight} kg")
-        print(f" 중량 안전 여부: {' 정상' if self.is_within_limits() else ' 초과'}")
+        print(f" 중량 안전 여부: {'정상' if self.is_within_limits() else '초과'}")
         cg = self.calculate_cg()
         print(f" 무게중심(CG): {cg} m")
-        print(f" 무게중심 안전 여부: {'정상' if self.is_cg_safe() else ' 위험'}")
+        print(f"🎯무게중심 안전 여부: {'정상' if self.is_cg_safe() else '위험'}")
+
+
+# JSON 불러오기 (파일은 같은 폴더에 있어야 함)
+with open("aircraft_data.json", "r", encoding="utf-8") as file:
+    aircraft_list = json.load(file)
+
+# 각 항공기 분석 실행
+for data in aircraft_list:
+    aircraft = Aircraft(data)
+    aircraft.status_report()
