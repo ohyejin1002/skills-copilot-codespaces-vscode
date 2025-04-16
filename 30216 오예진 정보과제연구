@@ -1,0 +1,52 @@
+import json
+
+with open("aircraft_data.json", "r", encoding="utf-8") as file:
+    aircraft_list = json.load(file)
+
+for data in aircraft_list:
+    aircraft = Aircraft(data)
+    aircraft.status_report()
+
+class Aircraft:
+    def __init__(self, data):
+        self.model = data["model"]
+        self.destination = data["destination"]
+        self.passengers = data["passengers"]
+        self.cargo_weight = data["cargo_weight"]
+        self.fuel_weight = data["fuel_weight"]
+        self.empty_weight = data["empty_weight"]
+        self.tare_weight = data["tare_weight"]
+        self.mtow = data["mtow"]
+        self.mldw = data["mldw"]
+        self.nose_wheel_weight = data["nose_wheel_weight"]
+        self.distance_d = data["distance_d"]
+        self.distance_l = data["distance_l"]
+        self.cg_limit_range = data["cg_limit_range"]
+
+        # 항공기 총 중량 계산
+        self.total_weight = (
+            self.empty_weight +
+            self.tare_weight +
+            self.cargo_weight +
+            self.fuel_weight
+        )
+
+    def is_within_limits(self):
+        return self.total_weight <= self.mtow and self.total_weight <= self.mldw
+
+    def calculate_cg(self):
+        # CG = [D + (F × L)] / W
+        cg = (self.distance_d + (self.nose_wheel_weight * self.distance_l)) / self.total_weight
+        return round(cg, 3)
+
+    def is_cg_safe(self):
+        cg = self.calculate_cg()
+        return self.cg_limit_range[0] <= cg <= self.cg_limit_range[1]
+
+    def status_report(self):
+        print(f"\n 모델: {self.model} | 목적지: {self.destination}")
+        print(f" 총 중량: {self.total_weight} kg")
+        print(f" 중량 안전 여부: {' 정상' if self.is_within_limits() else ' 초과'}")
+        cg = self.calculate_cg()
+        print(f" 무게중심(CG): {cg} m")
+        print(f" 무게중심 안전 여부: {'정상' if self.is_cg_safe() else ' 위험'}")
